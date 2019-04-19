@@ -33,6 +33,8 @@ public:
 class BasicSolver: public Calculator{
 public:
     double *getKoefsFromFile(ifstream &file) override;
+    double *calculate (double *koefficients) override;
+    virtual double operationResult(double a, double b) = 0;
 };
 
 class Additor: public BasicSolver{
@@ -40,8 +42,9 @@ public:
     int getCode() override{
         return ADDITION;
     }
-
-    double *calculate (double *koefficients) override;
+    double operationResult(double a, double b)override {
+        return (a + b);
+    }
 };
 
 class Subtractor: public BasicSolver{
@@ -49,8 +52,9 @@ public:
     int getCode() override{
         return SUBTRACTION;
     }
-
-    double *calculate (double *koefficients) override;
+    double operationResult(double a, double b)override {
+        return (a - b);
+    }
 };
 
 class Multiplicator: public BasicSolver{
@@ -58,8 +62,9 @@ public:
     int getCode() override{
         return MULTIPLICATION;
     }
-
-    double *calculate (double *koefficients) override;
+    double operationResult(double a, double b)override {
+        return (a * b);
+    }
 };
 
 class Divisor: public BasicSolver{
@@ -67,8 +72,9 @@ public:
     int getCode() override{
         return DIVISION;
     }
-
-    double *calculate (double *koefficients) override;
+    double operationResult(double a, double b)override {
+        return (a / b);
+    }
 };
 
 double *solve(const char *filepath, Calculator **calc, int n);

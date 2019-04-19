@@ -45,43 +45,13 @@ double * Quadratic_equation_solver::calculate(double *koefficients) {
     }
 }
 
-double* Additor::calculate(double *koefficients) {
+double* BasicSolver::calculate(double *koefficients) {
     if (koefficients[0] != 2) {
         return nullptr;
     }
     auto *result = new double [2];
     result[0] = 1;
-    result[1] = koefficients[1] + koefficients[2];
-    return result;
-}
-
-double* Subtractor::calculate(double *koefficients) {
-    if (koefficients[0] != 2) {
-        return nullptr;
-    }
-    auto *result = new double [2];
-    result[0] = 1;
-    result[1] = koefficients[1] - koefficients[2];
-    return result;
-}
-
-double* Divisor::calculate(double *koefficients) {
-    if (koefficients[0] != 2) {
-        return nullptr;
-    }
-    auto *result = new double [2];
-    result[0] = 1;
-    result[1] = koefficients[1] / koefficients[2];
-    return result;
-}
-
-double* Multiplicator::calculate(double *koefficients) {
-    if (koefficients[0] != 2) {
-        return nullptr;
-    }
-    auto *result = new double [2];
-    result[0] = 1;
-    result[1] = koefficients[1] * koefficients[2];
+    result[1] = operationResult(koefficients[1], koefficients[2]);
     return result;
 }
 
