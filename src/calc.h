@@ -1,7 +1,6 @@
 #ifndef CALC_CALC_H
 #define CALC_CALC_H
 
-#include <vector>
 
 #define QUADRATIC_EQ 1
 #define ADDITION 2
@@ -31,44 +30,45 @@ public:
     double *getKoefsFromFile(ifstream &file) override;
 };
 
-class Additor: public Calculator{
+class BasicSolver: public Calculator{
+public:
+    double *getKoefsFromFile(ifstream &file) override;
+};
+
+class Additor: public BasicSolver{
 public:
     int getCode() override{
         return ADDITION;
     }
 
     double *calculate (double *koefficients) override;
-    double *getKoefsFromFile(ifstream &file) override;
 };
 
-class Subtractor: public Calculator{
+class Subtractor: public BasicSolver{
 public:
     int getCode() override{
         return SUBTRACTION;
     }
 
     double *calculate (double *koefficients) override;
-    double *getKoefsFromFile(ifstream &file) override;
 };
 
-class Multiplicator: public Calculator{
+class Multiplicator: public BasicSolver{
 public:
     int getCode() override{
         return MULTIPLICATION;
     }
 
     double *calculate (double *koefficients) override;
-    double *getKoefsFromFile(ifstream &file) override;
 };
 
-class Divisor: public Calculator{
+class Divisor: public BasicSolver{
 public:
     int getCode() override{
         return DIVISION;
     }
 
     double *calculate (double *koefficients) override;
-    double *getKoefsFromFile(ifstream &file) override;
 };
 
 double *solve(const char *filepath, Calculator **calc, int n);

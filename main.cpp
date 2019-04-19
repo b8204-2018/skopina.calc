@@ -1,6 +1,7 @@
 #include <iostream>
-#include "calc.h"
+#include "src/calc.h"
 
+using namespace std;
 
 int main() {
     Additor add;
@@ -9,11 +10,11 @@ int main() {
     Divisor div;
     Multiplicator mul;
     Calculator *arr[] = {&add, &sub, &qes, &div, &mul};
-    const char quadr[] = "C:\\Users\\super hacka\\Desktop\\c++\\calc\\quadr_example";
-    const char addition[] = "C:\\Users\\super hacka\\Desktop\\c++\\calc\\add_example";
-    const char subtr[] = "C:\\Users\\super hacka\\Desktop\\c++\\calc\\sub_example";
-    const char mult[] = "C:\\Users\\super hacka\\Desktop\\c++\\calc\\mul_example";
-    const char divis[] = "C:\\Users\\super hacka\\Desktop\\c++\\calc\\div_example";
+    const char quadr[] = "C:\\Users\\super hacka\\Desktop\\c++\\calc\\examples\\quadr_example";
+    const char addition[] = "C:\\Users\\super hacka\\Desktop\\c++\\calc\\examples\\add_example";
+    const char subtr[] = "C:\\Users\\super hacka\\Desktop\\c++\\calc\\examples\\sub_example";
+    const char mult[] = "C:\\Users\\super hacka\\Desktop\\c++\\calc\\examples\\mul_example";
+    const char divis[] = "C:\\Users\\super hacka\\Desktop\\c++\\calc\\examples\\div_example";
     double *result = solve(quadr, arr, 5);
     printf("Quadratic equation's roots: ");
     printArr(result);

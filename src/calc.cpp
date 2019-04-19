@@ -124,7 +124,7 @@ double* Quadratic_equation_solver::getKoefsFromFile(ifstream &file) {
     return result;
 }
 
-double *basicOperationsKoefs(ifstream &file){
+double* BasicSolver::getKoefsFromFile(ifstream &file) {
     double count(0), koefs[2];
     if (!file.eof()){
         file >> koefs[0];
@@ -141,23 +141,6 @@ double *basicOperationsKoefs(ifstream &file){
         result[i] = koefs[i - 1];
     }
     return result;
-}
-
-double* Additor::getKoefsFromFile(ifstream &file) {
-    return basicOperationsKoefs(file);
-}
-
-
-double* Subtractor::getKoefsFromFile(ifstream &file) {
-    return basicOperationsKoefs(file);
-}
-
-double* Divisor::getKoefsFromFile(ifstream &file) {
-    return basicOperationsKoefs(file);
-}
-
-double* Multiplicator::getKoefsFromFile(ifstream &file) {
-    return basicOperationsKoefs(file);
 }
 
 
