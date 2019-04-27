@@ -9,33 +9,52 @@
 #define DIVISION 5
 
 
-using namespace std;
+class Parser {
+public:
+    bool isNum (char c);
+    double cast(std::string s);
+    virtual double *parse(std::string ex) = 0;
+};
+
+
+class QuadrEqParser: public Parser {
+    void getCoef(std::string &ex, std::string separ, int index, double *&coefs);
+public:
+    double *parse(std::string ex) override ;
+};
+
+
+class BiOpParser: public Parser{
+public:
+    double *parse(std::string ex) override ;
+};
 
 
 class Calculator {
 public:
-    virtual double *calculate (double *koefficients) = 0;
+    virtual double *calculate (std::string &s) = 0;
     virtual int getCode() = 0;
-    virtual double *getKoefsFromFile(ifstream &file) = 0;
+    friend bool operator!= (Calculator &calc1, Calculator &calc2);
 };
 
+bool operator!= (Calculator &calc1, Calculator &calc2);
 
-class Quadratic_equation_solver: public Calculator{
+
+class QuadrEqSolver: public Calculator{
 public:
     int getCode() override{
         return QUADRATIC_EQ;
     }
-
-    double *calculate (double *koefficients) override;
-    double *getKoefsFromFile(ifstream &file) override;
+    double *calculate (std::string &s) override;
 };
+
 
 class BasicSolver: public Calculator{
 public:
-    double *getKoefsFromFile(ifstream &file) override;
-    double *calculate (double *koefficients) override;
+    double *calculate (std::string &s) override;
     virtual double operationResult(double a, double b) = 0;
 };
+
 
 class Additor: public BasicSolver{
 public:
@@ -47,6 +66,7 @@ public:
     }
 };
 
+
 class Subtractor: public BasicSolver{
 public:
     int getCode() override{
@@ -56,6 +76,7 @@ public:
         return (a - b);
     }
 };
+
 
 class Multiplicator: public BasicSolver{
 public:
@@ -67,6 +88,7 @@ public:
     }
 };
 
+
 class Divisor: public BasicSolver{
 public:
     int getCode() override{
@@ -77,7 +99,19 @@ public:
     }
 };
 
-double *solve(const char *filepath, Calculator **calc, int n);
 
-void printArr(double *arr);
+struct CalcList{
+    Calculator &calculator;
+    struct CalcList *next = nullptr;
+    CalcList(Calculator &calculator):calculator(calculator){}
+};
+
+
+class Solver{
+    CalcList *head = nullptr;
+public:
+    void add(Calculator &calculator);
+    double *solve(int code, std::string &s);
+};
+
 #endif //CALC_CALC_H

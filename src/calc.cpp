@@ -1,139 +1,170 @@
-#include <fstream>
+#include <iostream>
+#include <sstream>
 #include <cmath>
 #include "calc.h"
 
 
-double * Quadratic_equation_solver::calculate(double *koefficients) {
-    double n = koefficients[0];
-    if (n < 1 || n > 3){
-        return nullptr;
-    }
-    double *roots; //roots[0] = number of roots
-    double a, b, c;
-    a = koefficients[1];
+using namespace std;
 
-    if (n == 1){
-     b = c = 0;
-    }
-    if (n == 2) {
-        b = koefficients[2];
-        c = 0;
-    }
-    if (n == 3) {
-        b = koefficients[2];
-        c = koefficients [3];
-    }
 
-    double d = b * b - 4 * a * c;
-    if (d < 0){
-        roots = new double [1];
-        roots[0] = 0;
-        return roots;
-    }
-    if (d == 0){
-        roots = new double [2];
-        roots[0] = 1;
-        roots[1] = (-b)/(2 * a);
-        return roots;
-    }
-    if (d > 0){
-        roots = new double [3];
-        roots[0] = 2;
-        roots[1] = (-b + sqrt(d)) / (2 * a);
-        roots[2] = (-b - sqrt(d)) / (2 * a);
-        return roots;
+double* QuadrEqSolver::calculate(std::string &s) {
+   try {
+       QuadrEqParser parser;
+       double *coefficients = parser.parse(s);
+       double *roots; //roots[0] = number of roots
+       double a, b, c;
+       a = coefficients[0];
+       b = coefficients[1];
+       c = coefficients[2];
+       double d = b * b - 4 * a * c;
+       if (d < 0) {
+           roots = new double[1];
+           roots[0] = 0;
+           return roots;
+       }
+       if (d == 0) {
+           roots = new double[2];
+           roots[0] = 1;
+           roots[1] = (-b) / (2 * a);
+           return roots;
+       }
+       roots = new double[3];
+       roots[0] = 2;
+       roots[1] = (-b + sqrt(d)) / (2 * a);
+       roots[2] = (-b - sqrt(d)) / (2 * a);
+       return roots;
+   } catch (std::invalid_argument &err){
+       cout << err.what();
+   }
+}
+
+
+double* BasicSolver::calculate(std::string &s) {
+    try {
+        BiOpParser parser;
+        double *coefficients = parser.parse(s);
+        auto *result = new double[2];
+        result[0] = 1;
+        result[1] = operationResult(coefficients[0], coefficients[1]);
+        return result;
+    } catch (std::invalid_argument &err){
+        cout << err.what() << endl;
     }
 }
 
-double* BasicSolver::calculate(double *koefficients) {
-    if (koefficients[0] != 2) {
-        return nullptr;
-    }
-    auto *result = new double [2];
-    result[0] = 1;
-    result[1] = operationResult(koefficients[1], koefficients[2]);
-    return result;
+
+bool Parser::isNum(char c) {
+    return (c >= 0x30 && c <= 0x39);
 }
 
-double checkSign(double numb, ifstream &file){
-    file.seekg(-3, ios::cur);
-    double result(numb);
-    char c;
-    file >> c;
-    if (c == '-'){
-        result *= -1;
-    }
-    file.seekg(2, ios::cur);
-    return result;
+
+double Parser::cast(std::string s) {
+    stringstream stream;
+    stream << s;
+    double number;
+    stream >> number;
+    return number;
 }
 
-double* Quadratic_equation_solver::getKoefsFromFile(ifstream &file) {
-    double count(0), koef[3];
-    if (!file.eof()){
-        file >> koef[0];
-        count++;
-        file.seekg(8, ios::cur);
-        if (!file.eof()){
-            file >> koef[1];
-            koef[1] = checkSign(koef[1], file);
-            count++;
-            file.seekg(6, ios::cur);
-            if (!file.eof()){
-                file >> koef[2];
-                koef[2] = checkSign(koef[2], file);
-                count++;
-                file.seekg(3, ios::cur);
-            }
+void QuadrEqParser::getCoef(string &ex, string separ, int index, double *&coefs){
+    if (ex.find(separ) == 0){
+        coefs[index] = 1;
+    } else if (ex.find(separ) == 1 && ex[0] == '-'){
+        coefs[index] = -1;
+    } else {
+        int pos = ex.find(separ);
+        coefs[index] = cast(ex.substr(0, pos));
+    }
+}
+
+double* QuadrEqParser::parse(std::string ex) {
+    if (ex.find("x^2") == string::npos) {
+        throw std::invalid_argument("Not a quadratic equation.");
+    }
+    for (int i = 0; i < ex.length(); i++){
+        if (ex[i] == ' '){
+            ex.erase(i, 1);
         }
     }
-    auto *result = new double [(int)count + 1];
-    result[0] = count;
-    for (int i = 1; i <= (int)count; i++){
-        result[i] = koef[i - 1];
+    ex.erase(ex.find("="));
+    auto coefs = new double [3];
+    string number;
+    getCoef(ex, "x^2", 0, coefs);
+    ex.erase(0, ex.find("x^2") + 3);
+    if (ex.find("x") != string::npos){
+        getCoef(ex, "x", 1, coefs);
+        ex.erase(0, ex.find("x") + 1);
+    } else {
+        coefs[1] = 0;
     }
-    return result;
+    if (!ex.empty()){
+        coefs[2] = cast(ex);
+    } else {
+        coefs[2] = 0;
+    }
+    return coefs;
 }
 
-double* BasicSolver::getKoefsFromFile(ifstream &file) {
-    double count(0), koefs[2];
-    if (!file.eof()){
-        file >> koefs[0];
-        count++;
-        file.seekg(2, ios::cur);
-        if (!file.eof()){
-            file >> koefs[1];
-            count++;
-        }
-    }
-    auto *result = new double [(int)count + 1];
-    result[0] = count;
-    for (int i = 1; i <= (int)count; i++){
-        result[i] = koefs[i - 1];
-    }
-    return result;
-}
-
-
-double *solve(const char *filepath, Calculator **calc, int n){
-    ifstream f(filepath);
-    if (!f){
-        return nullptr;
-    }
-    double code;
-    f >> code;
+double* BiOpParser::parse(std::string ex) {
+    auto *coefs = new double [2];
+    int count(0);
+    string number;
     int i(0);
-    while (i < n){
-        if (code == calc[i]->getCode()){
-            return calc[i]->calculate(calc[i]->getKoefsFromFile(f));
+    while (i < ex.length() && count <= 2) {
+        if (isNum(ex[i])) {
+            if (i != 0 && ex[i - 1] == '-'){
+                number.insert(0, 1, ex[i - 1]);
+            }
+            while (isNum(ex[i])) {
+                number += ex[i];
+                i++;
+                if (ex[i] == '.') {
+                    if (i + 1 < ex.length() && isNum(ex[i + 1])) {
+                        number += ex.substr(i, 2);
+                        i += 2;
+                    }
+                }
+            }
+            coefs[count] = cast(number);
+            count++;
+            number.clear();
         }
-        i++;
+        else {
+            i++;
+        }
     }
-    return nullptr;
+    if (count > 2){
+        throw std::invalid_argument ("Invalid expression.");
+    }
+    return coefs;
 }
 
-void printArr(double *arr) {
-    int n = (int) arr[0];
-    for (int i = 1; i <= n; i++) {
-        printf("%f ", arr[i]);
+
+bool operator!= (Calculator &calc1, Calculator &calc2){
+    return (calc1.getCode() != calc2.getCode());
+}
+
+
+
+void Solver::add(Calculator &calculator) {
+    CalcList *current = head;
+    while (current != nullptr && current->calculator != calculator){
+        current = current->next;
     }
+    if (current == nullptr){//если такого калькулятора еще нет
+        current = new CalcList(calculator);
+        current->next = head;
+        swap(head, current);
+    }
+}
+
+double* Solver::solve(int code, std::string &s) {
+    CalcList *current = head;
+    while (current != nullptr && current->calculator.getCode()!= code){
+        current = current->next;
+    }
+    if (current == nullptr){
+        throw std::logic_error ("Appropriate calculator is absent.");
+    }
+    return current->calculator.calculate(s);
 }
