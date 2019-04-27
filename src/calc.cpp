@@ -133,7 +133,7 @@ double* BiOpParser::parse(std::string ex) {
             i++;
         }
     }
-    if (count > 2){
+    if (count != 2){
         throw std::invalid_argument ("Invalid expression.");
     }
     return coefs;
