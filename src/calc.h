@@ -34,10 +34,7 @@ class Calculator {
 public:
     virtual double *calculate (std::string &s) = 0;
     virtual int getCode() = 0;
-    friend bool operator!= (Calculator &calc1, Calculator &calc2);
 };
-
-bool operator!= (Calculator &calc1, Calculator &calc2);
 
 
 class QuadrEqSolver: public Calculator{
@@ -103,14 +100,14 @@ public:
 struct CalcList{
     Calculator &calculator;
     struct CalcList *next = nullptr;
-    CalcList(Calculator &calculator):calculator(calculator){}
+    CalcList(Calculator *calculator):calculator(*calculator){}
 };
 
 
 class Solver{
     CalcList *head = nullptr;
 public:
-    void add(Calculator &calculator);
+    void add(Calculator *calculator);
     double *solve(int code, std::string &s);
 };
 

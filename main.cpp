@@ -18,22 +18,11 @@ int main(int argc, char **argv) {
         return -1;
     }
     Solver solver;
-
-    Additor add;
-    solver.add(add);
-
-    Subtractor sub;
-    solver.add(sub);
-
-    Multiplicator mul;
-    solver.add(mul);
-
-    Divisor div;
-    solver.add(div);
-
-    QuadrEqSolver qes;
-    solver.add(qes);
-
+    solver.add(new Additor);
+    solver.add(new Subtractor);
+    solver.add(new Divisor);
+    solver.add(new Multiplicator);
+    solver.add(new QuadrEqSolver);
     for (int i = 1; i < argc; i++){
         int code;
         string ex;

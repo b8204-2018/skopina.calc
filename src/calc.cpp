@@ -140,15 +140,9 @@ double* BiOpParser::parse(std::string ex) {
 }
 
 
-bool operator!= (Calculator &calc1, Calculator &calc2){
-    return (calc1.getCode() != calc2.getCode());
-}
-
-
-
-void Solver::add(Calculator &calculator) {
+void Solver::add(Calculator *calculator) {
     CalcList *current = head;
-    while (current != nullptr && current->calculator != calculator){
+    while (current != nullptr && current->calculator.getCode() != calculator->getCode()){
         current = current->next;
     }
     if (current == nullptr){//если такого калькулятора еще нет
