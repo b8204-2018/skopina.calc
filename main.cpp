@@ -28,14 +28,19 @@ int main(int argc, char **argv) {
         string ex;
         fstream f(argv[i]);
         if (!f){
-            cout << "File not found." << endl;
+            cout << "File " << argv[i] << " not found." << endl;
         } else {
             f >> code;
             f.seekg(3, ios::beg);
             getline(f, ex);
             cout << "Expression: " << ex << endl;
-            cout << "Solution: ";
-            print(solver.solve(code, ex));
+            try {
+                double *solution = solver.solve(code, ex);
+                cout << "Solution: ";
+                print(solution);
+            } catch (Exception &err){
+                cout << err.getError();
+            }
             cout << "\n\n" << endl;
         }
     }

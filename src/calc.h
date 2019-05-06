@@ -2,23 +2,45 @@
 #define CALC_CALC_H
 
 
+#include <vector>
+
+
 #define QUADRATIC_EQ 1
 #define ADDITION 2
 #define SUBTRACTION 3
 #define MULTIPLICATION 4
 #define DIVISION 5
 
+class Exception{
+protected:
+    std::string error;
+public:
+    Exception(std::string error): error(error){}
+    const char* getError() { return error.c_str();}
+};
+
+
+class ParserException: public Exception{
+public:
+    ParserException(std::string err): Exception(err){}
+};
+
+
+class SolverException: public Exception{
+public:
+    SolverException(std::string err): Exception(err){}
+};
+
 
 class Parser {
 public:
     bool isNum (char c);
-    double cast(std::string s);
     virtual double *parse(std::string ex) = 0;
 };
 
 
 class QuadrEqParser: public Parser {
-    void getCoef(std::string &ex, std::string separ, int index, double *&coefs);
+    void getCoef(std::string &ex, int pos, int index, double *&coefs);
 public:
     double *parse(std::string ex) override ;
 };
@@ -97,15 +119,8 @@ public:
 };
 
 
-struct CalcList{
-    Calculator &calculator;
-    struct CalcList *next = nullptr;
-    CalcList(Calculator *calculator):calculator(*calculator){}
-};
-
-
 class Solver{
-    CalcList *head = nullptr;
+    std::vector<Calculator*> calc;
 public:
     void add(Calculator *calculator);
     double *solve(int code, std::string &s);

@@ -8,48 +8,40 @@ using namespace std;
 
 
 double* QuadrEqSolver::calculate(std::string &s) {
-   try {
-       QuadrEqParser parser;
-       double *coefficients = parser.parse(s);
-       double *roots; //roots[0] = number of roots
-       double a, b, c;
-       a = coefficients[0];
-       b = coefficients[1];
-       c = coefficients[2];
-       double d = b * b - 4 * a * c;
-       if (d < 0) {
-           roots = new double[1];
-           roots[0] = 0;
-           return roots;
-       }
-       if (d == 0) {
-           roots = new double[2];
-           roots[0] = 1;
-           roots[1] = (-b) / (2 * a);
-           return roots;
-       }
-       roots = new double[3];
-       roots[0] = 2;
-       roots[1] = (-b + sqrt(d)) / (2 * a);
-       roots[2] = (-b - sqrt(d)) / (2 * a);
-       return roots;
-   } catch (std::invalid_argument &err){
-       cout << err.what();
-   }
+    QuadrEqParser parser;
+    double *coefficients = parser.parse(s);
+    double *roots; //roots[0] = number of roots
+    double a, b, c;
+    a = coefficients[0];
+    b = coefficients[1];
+    c = coefficients[2];
+    double d = b * b - 4 * a * c;
+    if (d < 0) {
+        roots = new double[1];
+        roots[0] = 0;
+        return roots;
+    }
+    if (d == 0) {
+        roots = new double[2];
+        roots[0] = 1;
+        roots[1] = (-b) / (2 * a);
+        return roots;
+    }
+    roots = new double[3];
+    roots[0] = 2;
+    roots[1] = (-b + sqrt(d)) / (2 * a);
+    roots[2] = (-b - sqrt(d)) / (2 * a);
+    return roots;
 }
 
 
 double* BasicSolver::calculate(std::string &s) {
-    try {
-        BiOpParser parser;
-        double *coefficients = parser.parse(s);
-        auto *result = new double[2];
-        result[0] = 1;
-        result[1] = operationResult(coefficients[0], coefficients[1]);
-        return result;
-    } catch (std::invalid_argument &err){
-        cout << err.what() << endl;
-    }
+    BiOpParser parser;
+    double *coefficients = parser.parse(s);
+    auto *result = new double[2];
+    result[0] = 1;
+    result[1] = operationResult(coefficients[0], coefficients[1]);
+    return result;
 }
 
 
@@ -58,50 +50,39 @@ bool Parser::isNum(char c) {
 }
 
 
-double Parser::cast(std::string s) {
-    stringstream stream;
-    stream << s;
-    double number;
-    stream >> number;
-    return number;
-}
-
-void QuadrEqParser::getCoef(string &ex, string separ, int index, double *&coefs){
-    if (ex.find(separ) == 0){
+void QuadrEqParser::getCoef(string &ex, int pos, int index, double *&coefs){
+    if (pos == 0){
         coefs[index] = 1;
-    } else if (ex.find(separ) == 1 && ex[0] == '-'){
+    } else if (pos == 1 && ex[0] == '-'){
         coefs[index] = -1;
     } else {
-        int pos = ex.find(separ);
-        coefs[index] = cast(ex.substr(0, pos));
+        coefs[index] = stod(ex.substr(0, pos));
     }
 }
 
 double* QuadrEqParser::parse(std::string ex) {
-    if (ex.find("x^2") == string::npos) {
-        throw std::invalid_argument("Not a quadratic equation.");
+    int pos = ex.find("x^2");
+    if (pos == string::npos) {
+        throw ParserException("Not a quadratic equation.");
     }
     for (int i = 0; i < ex.length(); i++){
         if (ex[i] == ' '){
             ex.erase(i, 1);
         }
     }
-    ex.erase(ex.find("="));
+    ex.erase(ex.find('='));
     auto coefs = new double [3];
     string number;
-    getCoef(ex, "x^2", 0, coefs);
+    getCoef(ex, pos, 0, coefs);
     ex.erase(0, ex.find("x^2") + 3);
-    if (ex.find("x") != string::npos){
-        getCoef(ex, "x", 1, coefs);
-        ex.erase(0, ex.find("x") + 1);
+    pos = ex.find('x');
+    if (pos != string::npos){
+        getCoef(ex, pos, 1, coefs);
+        ex.erase(0, pos + 1);
     } else {
         coefs[1] = 0;
     }
-    if (!ex.empty()){
-        coefs[2] = cast(ex);
-    } else {
-        coefs[2] = 0;
-    }
+    coefs[2] = !ex.empty() ? stod(ex) : 0;
     return coefs;
 }
 
@@ -125,7 +106,7 @@ double* BiOpParser::parse(std::string ex) {
                     }
                 }
             }
-            coefs[count] = cast(number);
+            coefs[count] = stod(number);
             count++;
             number.clear();
         }
@@ -134,31 +115,25 @@ double* BiOpParser::parse(std::string ex) {
         }
     }
     if (count != 2){
-        throw std::invalid_argument ("Invalid expression.");
+        throw ParserException("Invalid expression.");
     }
     return coefs;
 }
 
 
 void Solver::add(Calculator *calculator) {
-    CalcList *current = head;
-    while (current != nullptr && current->calculator.getCode() != calculator->getCode()){
-        current = current->next;
-    }
-    if (current == nullptr){//если такого калькулятора еще нет
-        current = new CalcList(calculator);
-        current->next = head;
-        swap(head, current);
+    int i;
+    for (i = 0; i < calc.size() && calc[i]->getCode() != calculator->getCode(); i++);
+    if (i == calc.size()){//если такого калькулятора еще нет
+        calc.push_back(calculator);
     }
 }
 
 double* Solver::solve(int code, std::string &s) {
-    CalcList *current = head;
-    while (current != nullptr && current->calculator.getCode()!= code){
-        current = current->next;
+    int i;
+    for (i = 0; i < calc.size() && calc[i]->getCode() != code; i++);
+    if (i == calc.size()){
+        throw SolverException("Appropriate calculator is absent.");
     }
-    if (current == nullptr){
-        throw std::logic_error ("Appropriate calculator is absent.");
-    }
-    return current->calculator.calculate(s);
+    return calc[i]->calculate(s);
 }
