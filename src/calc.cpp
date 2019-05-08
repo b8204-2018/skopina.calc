@@ -1,4 +1,3 @@
-#include <iostream>
 #include <sstream>
 #include <cmath>
 #include "calc.h"
@@ -63,7 +62,7 @@ void QuadrEqParser::getCoef(string &ex, int pos, int index, double *&coefs){
 double* QuadrEqParser::parse(std::string ex) {
     int pos = ex.find("x^2");
     if (pos == string::npos) {
-        throw ParserException("Not a quadratic equation.");
+        throw NotAQuadrEq();
     }
     for (int i = 0; i < ex.length(); i++){
         if (ex[i] == ' '){
@@ -115,7 +114,7 @@ double* BiOpParser::parse(std::string ex) {
         }
     }
     if (count != 2){
-        throw ParserException("Invalid expression.");
+        throw InvalidExpression();
     }
     return coefs;
 }
@@ -133,7 +132,7 @@ double* Solver::solve(int code, std::string &s) {
     int i;
     for (i = 0; i < calc.size() && calc[i]->getCode() != code; i++);
     if (i == calc.size()){
-        throw SolverException("Appropriate calculator is absent.");
+        throw CalculatorIsAbsent();
     }
     return calc[i]->calculate(s);
 }

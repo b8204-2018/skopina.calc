@@ -3,6 +3,7 @@
 
 
 #include <vector>
+#include "exceptions.h"
 
 
 #define QUADRATIC_EQ 1
@@ -10,26 +11,6 @@
 #define SUBTRACTION 3
 #define MULTIPLICATION 4
 #define DIVISION 5
-
-class Exception{
-protected:
-    std::string error;
-public:
-    Exception(std::string error): error(error){}
-    const char* getError() { return error.c_str();}
-};
-
-
-class ParserException: public Exception{
-public:
-    ParserException(std::string err): Exception(err){}
-};
-
-
-class SolverException: public Exception{
-public:
-    SolverException(std::string err): Exception(err){}
-};
 
 
 class Parser {
